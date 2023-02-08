@@ -19,25 +19,27 @@ class WindowClass(QMainWindow):
         self.areas = {}
         self.setWindowTitle("XMLConverter")
         self.setWindowIcon(QIcon("icon.png"))
-        self.progressBar.setValue(0)
-        self.progressBar.setEnabled(False)
-        self.Import.clicked.connect(self.ImportAction)
-        self.Export.clicked.connect(self.ExportAction)
-        self.listWidget.itemSelectionChanged.connect(self.ImageLoad)
+        self.ui.progressBar.setValue(0)
+        self.ui.progressBar.setEnabled(False)
+        self.ui.Import.clicked.connect(self.ImportAction)
+        self.ui.Export.clicked.connect(self.ExportAction)
+        self.ui.listWidget.itemSelectionChanged.connect(self.ImageLoad)
 
     def ImportAction(self):
-        self.progressBar.setValue(0)
+        self.ui.progressBar.setValue(0)
         self.file = QFileDialog.getOpenFileName(None, "Select a XML File:", os.getcwd(), "XML File (*.xml)")[0]
         self.Fileload()
-        self.progressBar.setValue(100)
+        self.ui.progressBar.setValue(100)
     
     def ExportAction(self):
-        self.progressBar.setValue(0)
+        self.ui.progressBar.setValue(0)
         self.file = QFileDialog.getSaveFileName(None, "Export a XML File:", os.getcwd(), "XML File (*.xml)")[0]
         self.FileSave()
-        self.progressBar.setValue(100)
+        self.ui.progressBar.setValue(100)
     
     def FileSave(self):
+        if not self.file:
+            return
         with open(self.file, 'w+', encoding='utf-8-sig') as f:
             f.write(self.xml.convert())
             f.close()
@@ -71,9 +73,9 @@ class WindowClass(QMainWindow):
     def Fileload(self):
         if not self.file:
             return
-        self.progressBar.setValue(1)
+        self.ui.progressBar.setValue(1)
         self.xml = xmlparser(self.file)
-        self.progressBar.setValue(50)
+        self.ui.progressBar.setValue(50)
         try:
             self.imgs = self.xml.imageparse(QFileDialog.getOpenFileName(None, "Select a SpriteSheet File:", os.getcwd(), "Image File (*.png)")[0])
             self.areas = {
@@ -85,10 +87,10 @@ class WindowClass(QMainWindow):
                 areas = {k: int(v) for k, v in dict(filter(lambda a: a[0] != "@name", i.items())).items()}
                 self.areas[i['@name']+"_position"] = (areas['@x'], areas['@y'], areas['@x']+areas['@width'], areas['@y']+areas['@height'])
 
-        self.listWidget.clear()
+        self.ui.listWidget.clear()
 
-        self.listWidget.insertItems(0, [i[:-9] for i in self.areas])
-        self.progressBar.setValue(99)
+        self.ui.listWidget.insertItems(0, [i[:-9] for i in self.areas])
+        self.ui.progressBar.setValue(99)
 
 
 
